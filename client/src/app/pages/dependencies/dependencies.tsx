@@ -25,7 +25,7 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@pf-consumer-testing/lib-ui";
 import { getHubRequestParams } from "@app/hooks/table-controls";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";

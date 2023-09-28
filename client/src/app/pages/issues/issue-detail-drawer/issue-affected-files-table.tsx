@@ -8,12 +8,8 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useSelectionState } from "@migtools/lib-ui";
-import {
-  AnalysisFileReport,
-  AnalysisAppReport,
-  AnalysisIssue,
-} from "@app/api/models";
+import { useSelectionState } from "@pf-consumer-testing/lib-ui";
+import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
 import {
   getHubRequestParams,
   useTableControlProps,

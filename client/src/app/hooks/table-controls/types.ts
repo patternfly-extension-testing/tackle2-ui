@@ -1,5 +1,8 @@
 import { TableProps } from "@patternfly/react-table";
-import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
+import {
+  ISelectionStateArgs,
+  useSelectionState,
+} from "@pf-consumer-testing/lib-ui";
 import { DisallowCharacters, KeyWithValueType } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
@@ -38,7 +41,7 @@ export interface ITableControlCommonArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > extends IFilterStateArgs<TItem, TFilterCategoryKey>,
     ISortStateArgs<TSortableColumnKey>,
     IPaginationStateArgs {
@@ -54,7 +57,7 @@ export interface ITableControlCommonArgs<
 // - Extra args needed for useTableControlUrlParams and each concern-specific use*UrlParams hook
 // - Does not require any state or query values in scope
 export interface IExtraArgsForURLParamHooks<
-  TURLParamKeyPrefix extends string = string
+  TURLParamKeyPrefix extends string = string,
 > {
   urlParamKeyPrefix?: DisallowCharacters<TURLParamKeyPrefix, ":">;
 }
@@ -75,7 +78,7 @@ export type IUseLocalTableControlStateArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > = ITableControlCommonArgs<
   TItem,
   TColumnKey,
@@ -99,7 +102,7 @@ export interface IUseTableControlPropsArgs<
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
-  TFilterCategoryKey extends string = string
+  TFilterCategoryKey extends string = string,
 > extends ITableControlCommonArgs<
       TItem,
       TColumnKey,

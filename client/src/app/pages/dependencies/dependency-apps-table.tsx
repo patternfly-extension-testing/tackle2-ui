@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@pf-consumer-testing/lib-ui";
 import { AnalysisDependency } from "@app/api/models";
 import {
   getHubRequestParams,

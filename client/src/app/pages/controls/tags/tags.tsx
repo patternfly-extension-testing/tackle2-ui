@@ -1,7 +1,7 @@
 import React from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@pf-consumer-testing/lib-ui";
 import {
   Button,
   ButtonVariant,

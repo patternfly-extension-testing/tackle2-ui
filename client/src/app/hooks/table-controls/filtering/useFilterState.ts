@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSessionStorage } from "@migtools/lib-ui";
+import { useSessionStorage } from "@pf-consumer-testing/lib-ui";
 import {
   FilterCategory,
   FilterValue,
@@ -56,7 +56,7 @@ export const serializeFilterUrlParams = <TFilterCategoryKey extends string>(
 };
 
 export const deserializeFilterUrlParams = <
-  TFilterCategoryKey extends string
+  TFilterCategoryKey extends string,
 >(serializedParams: {
   filters?: string | null;
 }): Partial<Record<TFilterCategoryKey, FilterValue>> => {
@@ -69,7 +69,7 @@ export const deserializeFilterUrlParams = <
 
 export const useFilterUrlParams = <
   TFilterCategoryKey extends string,
-  TURLParamKeyPrefix extends string = string
+  TURLParamKeyPrefix extends string = string,
 >({
   urlParamKeyPrefix,
 }: IExtraArgsForURLParamHooks<TURLParamKeyPrefix> = {}): IFilterState<TFilterCategoryKey> => {

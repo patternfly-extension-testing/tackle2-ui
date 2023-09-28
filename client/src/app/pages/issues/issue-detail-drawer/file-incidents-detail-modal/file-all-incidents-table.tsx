@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@pf-consumer-testing/lib-ui";
 import { TableURLParamKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
 import { useFetchIncidents } from "@app/queries/issues";

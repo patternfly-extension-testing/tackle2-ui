@@ -1,11 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-      - "v[0-9]+.[0-9]+.[0-9]+"
-      - "release-*"
   pull_request:
     branches:
       - main
@@ -31,7 +26,7 @@ jobs:
         run: ./scripts/verify_lock.mjs
 
       - name: Install
-        run: npm clean-install --ignore-scripts
+        run: npm install --ignore-scripts
 
       - name: Lint sources
         run: npm run lint

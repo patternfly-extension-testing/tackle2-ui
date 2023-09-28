@@ -1,4 +1,4 @@
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@pf-consumer-testing/lib-ui";
 import {
   getLocalFilterDerivedState,
   useFilterState,
