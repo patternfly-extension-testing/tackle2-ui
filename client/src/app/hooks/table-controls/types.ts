@@ -1,5 +1,5 @@
 import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
-import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
+import { ISelectionStateArgs, useSelectionState } from "@pf-consumer-testing/lib-ui";
 import { DisallowCharacters, DiscriminatedArgs } from "@app/utils/type-utils";
 import {
   IFilterStateArgs,

@@ -16,7 +16,7 @@ import { LayoutTheme } from "../LayoutUtils";
 import { checkAccess } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
 
-import { useLocalStorage } from "@migtools/lib-ui";
+import { useLocalStorage } from "@pf-consumer-testing/lib-ui";
 import { LocalStorageKey } from "@app/Constants";
 import { FEATURES_ENABLED } from "@app/FeatureFlags";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
