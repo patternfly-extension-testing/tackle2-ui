@@ -409,7 +409,7 @@ export interface TargetLabel {
   label: string;
 }
 export interface Target {
-  id?: number;
+  id: number;
   name: string;
   description?: string;
   choice?: boolean;
@@ -649,7 +649,7 @@ export interface Questionnaire {
   rating: string;
   createTime: string;
   required: boolean;
-  system: boolean;
+  builtin?: boolean;
   sections: Section[];
   thresholds: Thresholds;
   riskMessages: RiskMessages;
