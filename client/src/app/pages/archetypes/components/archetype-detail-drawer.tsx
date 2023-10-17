@@ -1,3 +1,4 @@
+import "./archetype-detail-drawer.css";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -16,12 +17,11 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Archetype, Tag } from "@app/api/models";
+import { Archetype, Ref, Tag, TagRef } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
-import { useFetchTagCategories } from "@app/queries/tags";
 
-import "./archetype-detail-drawer.css";
+import { dedupeArrayOfObjects } from "@app/utils/utils";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -34,24 +34,18 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { tagCategories } = useFetchTagCategories();
-  const tags = useMemo(
-    () => tagCategories.flatMap((tc) => tc.tags).filter(Boolean),
-    [tagCategories]
-  );
+  const manualTags: TagRef[] = useMemo(() => {
+    const rawManualTags: TagRef[] =
+      archetype?.tags?.filter((t) => !t?.source) ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawManualTags, "name");
+  }, [archetype?.tags]);
 
-  const archetypeTags =
-    archetype?.tags
-      ?.filter((t) => t?.source ?? "" === "")
-      .map((ref) => tags.find((tag) => ref.id === tag.id))
-      .filter(Boolean) ?? [];
-
-  const assessmentTags =
-    archetype?.tags
-      ?.filter((t) => t?.source ?? "" !== "")
-      .map((ref) => tags.find((tag) => ref.id === tag.id))
-      .filter(Boolean) ?? [];
-
+  const assessmentTags: TagRef[] = useMemo(() => {
+    const rawAssessmentTags: TagRef[] =
+      archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
+    return dedupeArrayOfObjects<TagRef>(rawAssessmentTags, "name");
+  }, [archetype?.tags]);
+  console.log("archetype", archetype);
   return (
     <PageDrawerContent
       isExpanded={!!archetype}
@@ -80,6 +74,17 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         </DescriptionListGroup>
 
         <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {archetype?.applications?.length ?? 0 > 0 ? (
+              <ApplicationLabels applicationRefs={archetype?.applications} />
+            ) : (
+              <EmptyTextMessage message={t("terms.none")} />
+            )}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+
+        <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.tagsCriteria")}</DescriptionListTerm>
           <DescriptionListDescription>
             {archetype?.criteria?.length ?? 0 > 0 ? (
@@ -93,8 +98,8 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.tagsArchetype")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {archetypeTags.length > 0 ? (
-              <TagLabels tags={archetypeTags} />
+            {manualTags.length > 0 ? (
+              <TagLabels tags={manualTags} />
             ) : (
               <EmptyTextMessage message={t("terms.none")} />
             )}
@@ -162,6 +167,21 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
     </PageDrawerContent>
   );
 };
+
+const ApplicationLabels: React.FC<{ applicationRefs?: Ref[] }> = ({
+  applicationRefs,
+}) =>
+  (applicationRefs?.length ?? 0) === 0 ? null : (
+    <LabelGroup>
+      {(applicationRefs as Ref[])
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((ref) => (
+          <Label color="grey" key={ref.id}>
+            {ref.name}
+          </Label>
+        ))}
+    </LabelGroup>
+  );
 
 const TagLabels: React.FC<{ tags?: Tag[] }> = ({ tags }) =>
   (tags?.length ?? 0) === 0 ? null : (

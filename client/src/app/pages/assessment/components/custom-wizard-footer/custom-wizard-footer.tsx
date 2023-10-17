@@ -12,7 +12,6 @@ export interface CustomWizardFooterProps {
   isLastStep: boolean;
   isDisabled: boolean;
   isFormInvalid: boolean;
-  isArchetype?: boolean;
   hasAnswers?: boolean;
   onSave: (review: boolean) => void;
   onSaveAsDraft: () => void;
@@ -23,7 +22,6 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   isLastStep,
   isDisabled,
   isFormInvalid,
-  isArchetype,
   hasAnswers,
   onSave,
   onSaveAsDraft,
@@ -51,16 +49,14 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
                   >
                     {t("actions.save")}
                   </Button>
-                  {!isArchetype && (
-                    <Button
-                      variant="primary"
-                      onClick={() => onSave(true)}
-                      isDisabled={!enableNext || isDisabled || isFormInvalid}
-                      cy-data="save-and-review"
-                    >
-                      {t("actions.saveAndReview")}
-                    </Button>
-                  )}
+                  <Button
+                    variant="primary"
+                    onClick={() => onSave(true)}
+                    isDisabled={!enableNext || isDisabled || isFormInvalid}
+                    cy-data="save-and-review"
+                  >
+                    {t("actions.saveAndReview")}
+                  </Button>
                 </>
               ) : (
                 <Button
@@ -83,14 +79,16 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
               <Button variant="link" onClick={onClose} cy-data="cancel">
                 {t("actions.cancel")}
               </Button>
-              <Button
-                variant="link"
-                onClick={onSaveAsDraft}
-                isDisabled={isFormInvalid || isFirstStep || !hasAnswers}
-                cy-data="save-as-draft"
-              >
-                {t("actions.saveAsDraft")}
-              </Button>
+              {!isFirstStep && (
+                <Button
+                  variant="link"
+                  onClick={onSaveAsDraft}
+                  isDisabled={isFormInvalid || isFirstStep || !hasAnswers}
+                  cy-data="save-as-draft"
+                >
+                  {t("actions.saveAsDraft")}
+                </Button>
+              )}
             </>
           );
         }}
