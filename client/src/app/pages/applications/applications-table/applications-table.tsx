@@ -13,13 +13,10 @@ import {
   ToolbarGroup,
   ButtonVariant,
   DropdownItem,
-  Dropdown,
-  MenuToggle,
-  MenuToggleElement,
   Modal,
   Tooltip,
 } from "@patternfly/react-core";
-import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
+import { PencilAltIcon, TagIcon } from "@patternfly/react-icons";
 import {
   Table,
   Thead,
@@ -83,7 +80,10 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { useDeleteAssessmentMutation } from "@app/queries/assessments";
+import {
+  useDeleteAssessmentMutation,
+  useFetchAssessments,
+} from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
@@ -106,6 +106,8 @@ import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -115,8 +117,6 @@ export const ApplicationsTable: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { identities } = useFetchIdentities();
-  const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
-    React.useState<boolean>(false);
 
   const [saveApplicationModalState, setSaveApplicationModalState] =
     React.useState<"create" | Application | null>(null);
@@ -210,6 +210,9 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
+
+  const { assessments } = useFetchAssessments();
+  const { archetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -360,8 +363,9 @@ export const ApplicationsTable: React.FC = () => {
         selectOptions: [
           ...new Set(
             applications
-              .flatMap((application) =>
-                application?.archetypes?.map((archetype) => archetype.name)
+              .flatMap(
+                (application) =>
+                  application?.archetypes?.map((archetype) => archetype.name)
               )
               .filter(Boolean)
           ),
@@ -576,15 +580,12 @@ export const ApplicationsTable: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
-
   const applicationDropdownItems = applicationWriteAccess
     ? [
         <ConditionalTooltip
           key="delete-app-tooltip"
           isTooltipEnabled={areAppsInWaves}
-          content={
-            "Cannot delete application(s) assigned to migration wave(s)."
-          }
+          content={t("message.cannotDeleteApplicationsAssignedToMigrationWave")}
         >
           <DropdownItem
             key="applications-bulk-delete"
@@ -798,27 +799,10 @@ export const ApplicationsTable: React.FC = () => {
               </ToolbarItem>
               {dropdownItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
-                  <Dropdown
-                    isOpen={isToolbarKebabOpen}
-                    onSelect={() => setIsToolbarKebabOpen(false)}
-                    onOpenChange={(_isOpen) => setIsToolbarKebabOpen(false)}
-                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                      <MenuToggle
-                        ref={toggleRef}
-                        aria-label="kebab dropdown toggle"
-                        variant="plain"
-                        onClick={() =>
-                          setIsToolbarKebabOpen(!isToolbarKebabOpen)
-                        }
-                        isExpanded={isToolbarKebabOpen}
-                      >
-                        <EllipsisVIcon />
-                      </MenuToggle>
-                    )}
-                    shouldFocusToggleOnSelect
-                  >
-                    {dropdownItems}
-                  </Dropdown>
+                  <KebabDropdown
+                    dropdownItems={dropdownItems}
+                    ariaLabel="Application actions"
+                  />
                 </ToolbarItem>
               ) : (
                 <></>
@@ -908,6 +892,8 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
+                          assessments={assessments}
+                          archetypes={archetypes}
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>
@@ -1002,11 +988,20 @@ export const ApplicationsTable: React.FC = () => {
                             ...(applicationWriteAccess
                               ? [
                                   {
+                                    isAriaDisabled:
+                                      application.migrationWave !== null,
+                                    tooltipProps: {
+                                      content:
+                                        application.migrationWave !== null
+                                          ? t(
+                                              "message.cannotDeleteApplicationsAssignedToMigrationWave"
+                                            )
+                                          : "",
+                                    },
+
                                     title: t("actions.delete"),
                                     onClick: () =>
                                       setApplicationsToDelete([application]),
-                                    isDisabled:
-                                      application.migrationWave !== null,
                                   },
                                 ]
                               : []),
@@ -1073,6 +1068,7 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawer
           application={activeItem}
           applications={applications}
+          assessments={assessments}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}

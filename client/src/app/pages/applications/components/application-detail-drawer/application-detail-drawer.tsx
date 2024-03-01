@@ -31,6 +31,7 @@ import {
   MimeType,
   Ref,
   Archetype,
+  AssessmentWithSectionOrder,
 } from "@app/api/models";
 import {
   IPageDrawerContentProps,
@@ -64,6 +65,7 @@ export interface IApplicationDetailDrawerProps
   application: Application | null;
   task: Task | undefined | null;
   applications?: Application[];
+  assessments?: AssessmentWithSectionOrder[];
   onEditClick: () => void;
 }
 
@@ -77,7 +79,7 @@ enum TabKey {
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
-> = ({ onCloseClick, application, task, onEditClick }) => {
+> = ({ onCloseClick, application, assessments, task, onEditClick }) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -190,22 +192,38 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.associatedArchetypes")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {application?.archetypes?.length ?? 0 > 0 ? (
-                      <ArchetypeLabels
-                        archetypeRefs={application?.archetypes}
-                      />
+                    {application?.archetypes?.length ? (
+                      <>
+                        <DescriptionListDescription>
+                          {application.archetypes.length ?? 0 > 0 ? (
+                            <ArchetypeLabels
+                              archetypeRefs={application.archetypes as Ref[]}
+                            />
+                          ) : (
+                            <EmptyTextMessage message={t("terms.none")} />
+                          )}
+                        </DescriptionListDescription>
+                      </>
                     ) : (
                       <EmptyTextMessage message={t("terms.none")} />
                     )}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
+
                 <DescriptionListGroup>
                   <DescriptionListTerm>
                     {t("terms.archetypesAssessed")}
                   </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    <AssessedArchetypes application={application} />
-                  </DescriptionListDescription>
+                  {assessments && assessments.length ? (
+                    <DescriptionListDescription>
+                      <AssessedArchetypes
+                        application={application}
+                        assessments={assessments}
+                      />
+                    </DescriptionListDescription>
+                  ) : (
+                    <EmptyTextMessage message={t("terms.none")} />
+                  )}
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>
@@ -425,7 +443,7 @@ export const ApplicationDetailDrawer: React.FC<
           </Tab>
           <Tab
             eventKey={TabKey.Reviews}
-            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+            title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
             <ReviewFields application={application} />
           </Tab>

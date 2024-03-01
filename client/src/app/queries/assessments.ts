@@ -17,11 +17,8 @@ import {
 } from "@app/api/rest";
 import { AxiosError } from "axios";
 import {
-  Archetype,
   Assessment,
-  AssessmentWithArchetypeApplications,
   AssessmentWithSectionOrder,
-  AssessmentsWithArchetype,
   InitialAssessment,
 } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
@@ -224,18 +221,21 @@ const removeSectionOrderFromQuestions = (
 export const useFetchAssessmentsWithArchetypeApplications = () => {
   const { assessments, isFetching: assessmentsLoading } = useFetchAssessments();
 
+  const archetypeQueries = useMemo(() => {
+    const uniqueArchetypeIds = new Set(
+      assessments.map((assessment) => assessment?.archetype?.id).filter(Boolean)
+    );
+    return Array.from(uniqueArchetypeIds).map((archetypeId) => ({
+      queryKey: ["archetype", archetypeId],
+      queryFn: async () => {
+        const data = await getArchetypeById(archetypeId);
+        return { archetypeId, applications: data.applications };
+      },
+    }));
+  }, [assessments]);
+
   const archetypesUsedInAnAssessmentQueries = useQueries({
-    queries:
-      [
-        ...new Set(
-          assessments
-            .map((assessment) => assessment?.archetype?.id)
-            .filter(Boolean)
-        ),
-      ].map((archetypeId) => ({
-        queryKey: ["archetype", archetypeId],
-        queryFn: () => getArchetypeById(archetypeId),
-      })) || [],
+    queries: archetypeQueries,
   });
 
   const isArchetypesLoading = archetypesUsedInAnAssessmentQueries.some(
@@ -243,54 +243,22 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
   );
 
   const archetypeApplicationsMap = new Map();
-  archetypesUsedInAnAssessmentQueries.forEach((query, index) => {
-    if (query.data && assessments[index].archetype?.id) {
-      archetypeApplicationsMap.set(
-        assessments[index]?.archetype?.id,
-        query.data.applications
-      );
+  archetypesUsedInAnAssessmentQueries.forEach(({ data }) => {
+    if (data) {
+      archetypeApplicationsMap.set(data.archetypeId, data.applications);
     }
   });
 
-  const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
-    assessments.map((assessment) => ({
+  const assessmentsWithArchetypeApplications = assessments.map(
+    (assessment) => ({
       ...assessment,
       archetypeApplications:
         archetypeApplicationsMap.get(assessment?.archetype?.id) ?? [],
-    }));
+    })
+  );
 
   return {
     assessmentsWithArchetypeApplications,
     isLoading: assessmentsLoading || isArchetypesLoading,
-  };
-};
-
-export const useFetchAllAssessmentsWithArchetypes = (
-  archetypes: Archetype[] = []
-) => {
-  const assessmentQueries = useQueries({
-    queries: archetypes.map((archetype) => ({
-      queryKey: ["assessmentsForArchetype", archetype.id],
-      queryFn: () => getAssessmentsByItemId(true, archetype.id),
-    })),
-  });
-
-  const assessmentsWithArchetypes: AssessmentsWithArchetype[] =
-    assessmentQueries
-      .map((query, index) => {
-        if (query.isSuccess) {
-          return {
-            archetype: archetypes[index],
-            assessments: query.data,
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-  return {
-    assessmentsWithArchetypes,
-    isLoading: assessmentQueries.some((query) => query.isLoading),
-    isError: assessmentQueries.some((query) => query.isError),
   };
 };
