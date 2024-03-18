@@ -5,9 +5,13 @@ import {
   DescriptionListTerm,
   DescriptionListDescription,
 } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { Application, Archetype, Review } from "@app/api/models";
-import { useFetchReviewById, useFetchReviews } from "@app/queries/reviews";
+import { useFetchReviewById } from "@app/queries/reviews";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import { useFetchReviews } from "@app/queries/reviews";
+
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
 import { ReviewLabel } from "./review-label";
@@ -21,11 +25,12 @@ export type ReviewDrawerLabelItem = {
 export const ReviewFields: React.FC<{
   application?: Application | null;
   archetype?: Archetype | null;
+  reviews?: Review[];
 }> = ({ application, archetype }) => {
   const { archetypes } = useFetchArchetypes();
-  const { reviews } = useFetchReviews();
   const { t } = useTranslation();
 
+  const { reviews } = useFetchReviews();
   const { review: appReview } = useFetchReviewById(application?.review?.id);
   const { review: archetypeReview } = useFetchReviewById(archetype?.review?.id);
 
@@ -41,7 +46,7 @@ export const ReviewFields: React.FC<{
 
   const matchedArchetypeReviews: Review[] = (applicationArchetypes || [])
     .map((archetype) => {
-      return reviews.find((review) => review.id === archetype?.review?.id);
+      return reviews?.find((review) => review.id === archetype?.review?.id);
     })
     .filter(Boolean);
 
@@ -71,7 +76,7 @@ export const ReviewFields: React.FC<{
   ].filter((item) => item.review?.proposedAction);
 
   return (
-    <>
+    <div className={spacing.mtMd}>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.proposedAction")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="proposed-action">
@@ -150,6 +155,6 @@ export const ReviewFields: React.FC<{
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
-    </>
+    </div>
   );
 };

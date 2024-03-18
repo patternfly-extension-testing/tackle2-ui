@@ -81,6 +81,7 @@ export const MultiselectFilterControl = <TItem,>({
   const textInputRef = React.useRef<HTMLInputElement>();
   const [inputValue, setInputValue] = React.useState<string>("");
 
+  const onFilterClearAll = () => setFilterValue([]);
   const onFilterClear = (chip: string | ToolbarChip) => {
     const displayValue = typeof chip === "string" ? chip : chip.key;
     const optionKey = getOptionKeyFromChip(displayValue);
@@ -237,7 +238,8 @@ export const MultiselectFilterControl = <TItem,>({
         newSelectOptions = [
           {
             key: "no-results",
-            isDisabled: false,
+            isDisabled: true,
+            hasCheckbox: false,
             children: `No results found for "${inputValue}"`,
             value: "No results",
           },
@@ -357,6 +359,7 @@ export const MultiselectFilterControl = <TItem,>({
       id={`filter-control-${category.key}`}
       chips={chips}
       deleteChip={(_, chip) => onFilterClear(chip)}
+      deleteChipGroup={onFilterClearAll}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
